@@ -1,0 +1,1 @@
+This is my template for making SDL2 games which can be compiled for native environment and javascript from the same source.
