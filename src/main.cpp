@@ -12,12 +12,13 @@
 #include <functional>
 #include "SDLUtils.h"
 #include "Game.h"
+#include "AudioSystem.h"
 
-void mainLoopContent(void* arg) {
-	Game* game = (Game*)arg;
-	game->run();
-	SDL_RenderPresent(game->getWindowRenderer());
-}
+#ifdef __EMSCRIPTEN__
+	void mainLoopContent(void* arg) {
+		((Game*)arg)->run();
+	}
+#endif
 
 void cleanupSDL(int sdlInitPhase) {
 	switch (sdlInitPhase) {
@@ -46,13 +47,14 @@ void setupWindowAndStartGame() {
 		return;
 	}
 
-	Game game(windowRenderer.get());
+	AudioSystem audioSystem;
+	Game game(windowRenderer.get(), &audioSystem);
 	#ifdef __EMSCRIPTEN__
 		emscripten_set_main_loop_arg(mainLoopContent, &game, Game::FPS, 1);
 	#else
 		while (1) {
 			Uint32 startTime = SDL_GetTicks();
-			mainLoopContent(&game);
+			game.run();
 			if (game.isFinished()) {
 				break;
 			}
@@ -64,7 +66,11 @@ void setupWindowAndStartGame() {
 }
 
 int main(int argc, char** argv) {
-	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS) != 0) {
+	Uint32 sdlInitFlags = SDL_INIT_VIDEO |  SDL_INIT_EVENTS;
+	#ifndef __EMSCRIPTEN__
+		sdlInitFlags |= (SDL_INIT_AUDIO | SDL_INIT_JOYSTICK);
+	#endif
+	if (SDL_Init(sdlInitFlags) != 0) {
 		printf("Could not initialize SDL2, error message: %s", SDL_GetError());
 		return 0;
 	}

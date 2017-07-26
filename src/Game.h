@@ -3,17 +3,28 @@
 
 #include <SDL.h>
 #include "SDLUtils.h"
+#include "AudioSystem.h"
 
 class Game {
 private:
 	SDL_Renderer* windowRenderer;
+	AudioSystem* audioSystem;
 	Uint32 frames;
 
 	SDL_TexturePtr background;
 	SDL_TexturePtr text;
 	TTF_FontPtr font;
+
+	AudioMusic music;
+	AudioChunk chunk;
+
+	bool keepRunning;
+
+	#ifndef __EMSCRIPTEN__
+		void quitCalled();
+	#endif
 public:
-	Game(SDL_Renderer* windowRenderer);
+	Game(SDL_Renderer* windowRenderer, AudioSystem* audioSystem);
 	virtual ~Game();
 	static const int FPS = 60;
 	static const int WIDTH = 800;
@@ -23,7 +34,7 @@ public:
 	void run();
 	Uint32 getFrames() { return frames; };
 	bool isFinished();
-	SDL_Renderer* getWindowRenderer() { return windowRenderer; } ;
+	void handleEvents();
 };
 
 #endif /* SRC_GAME_H_ */
