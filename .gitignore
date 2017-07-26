@@ -1,0 +1,12 @@
+Thumbs.db
+.cproject
+.project
+*.dll
+.settings
+assets
+audio
+Debug
+Release
+emcc/sdl_template.data
+emcc/sdl_template.js
+emcc/sdl_template.js.mem
