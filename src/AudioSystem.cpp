@@ -1,45 +1,60 @@
 #include "AudioSystem.h"
+#include <stdio.h>
 
 #ifdef __EMSCRIPTEN__
 namespace AudioSystemJSLibrary {
 	extern "C" {
-		extern AudioMusic loadMusic(const char* filepath);
-		extern AudioChunk loadChunk(const char* filepath);
-		extern void playMusic(AudioMusic music);
+		extern int loadMusic(const char* filepath);
+		extern int loadChunk(const char* filepath);
+		extern void playMusic(int music);
 		extern void stopMusic();
-		extern void playChunk(AudioChunk chunk);
+		extern void playChunk(int chunk);
 		extern void setMusicVolume(float volume);
 		extern void setChunkVolume(float volume);
+		extern void freeMusic(int music);
+		extern void freeChunk(int chunk);
 	}
 }
 #endif
 
 AudioSystem::AudioSystem() {}
 AudioSystem::~AudioSystem() {}
+MusicUptr::~MusicUptr() {
+#ifdef __EMSCRIPTEN__
+	if (music != -1) {
+		AudioSystemJSLibrary::freeMusic(music);
+	}
+#endif
+}
+ChunkUptr::~ChunkUptr() {
+#ifdef __EMSCRIPTEN__
+	if (chunk != -1) {
+		AudioSystemJSLibrary::freeChunk(chunk);
+	}
+#endif
+}
 
-AudioMusic AudioSystem::loadMusic(const char* filepath) {
+MusicUptr AudioSystem::loadMusic(const char* filepath) {
 #ifdef __EMSCRIPTEN__
 	return AudioSystemJSLibrary::loadMusic(filepath);
 #else
-	musics.push_back(SDLUtils::loadMusic(filepath));
-	return musics.size() - 1;
+	return std::move(uptr(Mix_LoadMUS(filepath)));
 #endif
 }
 
-AudioChunk AudioSystem::loadChunk(const char* filepath) {
+ChunkUptr AudioSystem::loadChunk(const char* filepath) {
 #ifdef __EMSCRIPTEN__
 	return AudioSystemJSLibrary::loadChunk(filepath);
 #else
-	chunks.push_back(SDLUtils::loadChunk(filepath));
-	return chunks.size() - 1;
+	return std::move(uptr(Mix_LoadWAV(filepath)));
 #endif
 }
 
-void AudioSystem::playMusic(AudioMusic music) {
+void AudioSystem::playMusic(MusicRawPtr music) {
 #ifdef __EMSCRIPTEN__
-	AudioSystemJSLibrary::playMusic(music);
+	AudioSystemJSLibrary::playMusic(music.music);
 #else
-	SDLUtils::playMusic(musics[music].get());
+	Mix_PlayMusic(music.music, -1);
 #endif
 }
 
@@ -51,11 +66,11 @@ void AudioSystem::stopMusic() {
 #endif
 }
 
-void AudioSystem::playChunk(AudioChunk chunk) {
+void AudioSystem::playChunk(ChunkRawPtr chunk) {
 #ifdef __EMSCRIPTEN__
-	AudioSystemJSLibrary::playChunk(chunk);
+	AudioSystemJSLibrary::playChunk(chunk.chunk);
 #else
-	SDLUtils::playChunk(chunks[chunk].get());
+	Mix_PlayChannel(-1, chunk.chunk, 0);
 #endif
 }
 

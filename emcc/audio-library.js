@@ -74,5 +74,13 @@ mergeInto(LibraryManager.library, {
 			_audioHelper.loadedChunkFiles[c].volume = volume;
 		}
 	},
-	"setChunkVolume__deps": ["audioHelper"]
+	"setChunkVolume__deps": ["audioHelper"],
+	"freeMusic": function(music) {
+		delete _audioHelper.loadedMusicFiles[music];
+	},
+	"freeMusic__deps": ["audioHelper"],
+	"freeChunk": function(chunk) {
+		delete _audioHelper.loadedChunkFiles[chunk];
+	},
+	"freeChunk__deps": ["audioHelper"]
 });

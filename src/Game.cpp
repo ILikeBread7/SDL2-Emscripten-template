@@ -1,7 +1,7 @@
 #include "Game.h"
 #include <sstream>
 
-Game::Game(SDL_Renderer* windowRenderer, AudioSystem* audioSystem) : windowRenderer(windowRenderer), audioSystem(audioSystem), frames(0) {
+Game::Game(SDL_Renderer* windowRenderer, AudioSystem* audioSystem, InitState initialization) : windowRenderer(windowRenderer), audioSystem(audioSystem), initialization(initialization), frames(0) {
 	background = SDLUtils::loadTexture("assets/IMG_3148.PNG", windowRenderer);
 	font = SDLUtils::loadFont("assets/arial.ttf", 24);
 	SDL_Color color = {255,255,0,255};
@@ -26,8 +26,8 @@ void Game::run() {
 	SDLUtils::renderTexture(framesText.get(), windowRenderer, 80, 275);
 	SDL_RenderPresent(windowRenderer);
 	if (frames == 0) {
-		audioSystem->playMusic(music);
-		audioSystem->playChunk(chunk);
+		audioSystem->playMusic(music.get());
+		audioSystem->playChunk(chunk.get());
 	}
 	if (frames == 120) {
 		audioSystem->stopMusic();

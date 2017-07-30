@@ -13,6 +13,7 @@
 #include "SDLUtils.h"
 #include "Game.h"
 #include "AudioSystem.h"
+#include "InitState.h"
 
 #ifdef __EMSCRIPTEN__
 	void mainLoopContent(void* arg) {
@@ -34,7 +35,7 @@ void cleanupSDL(int sdlInitPhase) {
 	}
 }
 
-void setupWindowAndStartGame() {
+void setupWindowAndStartGame(InitState initialization) {
 	SDL_WindowPtr window = SDLUtils::uptr(SDL_CreateWindow(Game::TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Game::WIDTH, Game::HEIGHT, SDL_WINDOW_SHOWN));
 	if (window == nullptr) {
 		printf("Could not create SDL2 window, error message: %s", SDL_GetError());
@@ -48,16 +49,13 @@ void setupWindowAndStartGame() {
 	}
 
 	AudioSystem audioSystem;
-	Game game(windowRenderer.get(), &audioSystem);
+	Game game(windowRenderer.get(), &audioSystem, initialization);
 	#ifdef __EMSCRIPTEN__
 		emscripten_set_main_loop_arg(mainLoopContent, &game, Game::FPS, 1);
 	#else
-		while (1) {
+		while (!game.isFinished()) {
 			Uint32 startTime = SDL_GetTicks();
 			game.run();
-			if (game.isFinished()) {
-				break;
-			}
 			if (SDL_GetTicks() - startTime < 1000/Game::FPS) {
 				SDL_Delay(1000/Game::FPS - (SDL_GetTicks() - startTime));
 			}
@@ -65,12 +63,31 @@ void setupWindowAndStartGame() {
 	#endif
 }
 
-int main(int argc, char** argv) {
-	Uint32 sdlInitFlags = SDL_INIT_VIDEO |  SDL_INIT_EVENTS;
+InitState initSDLWithDifferentFlags() {
+	Uint32 sdlInitFlags = SDL_INIT_VIDEO |  SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC;
 	#ifndef __EMSCRIPTEN__
-		sdlInitFlags |= (SDL_INIT_AUDIO | SDL_INIT_JOYSTICK);
+		sdlInitFlags |= SDL_INIT_AUDIO;
 	#endif
-	if (SDL_Init(sdlInitFlags) != 0) {
+	if (SDL_Init(sdlInitFlags) == 0) {
+		return InitState::JOYSTICK_AND_HAPTIC;
+	}
+
+	sdlInitFlags &= ~SDL_INIT_HAPTIC;
+	if (SDL_Init(sdlInitFlags) == 0) {
+		return InitState::JOYSTICK;
+	}
+
+	sdlInitFlags &= ~SDL_INIT_JOYSTICK;
+	if (SDL_Init(sdlInitFlags) == 0) {
+		return InitState::NO_JOYSTICK;
+	}
+
+	return InitState::FAILED;
+}
+
+int main(int argc, char** argv) {
+	InitState initialization = initSDLWithDifferentFlags();
+	if (initialization == InitState::FAILED) {
 		printf("Could not initialize SDL2, error message: %s", SDL_GetError());
 		return 0;
 	}
@@ -99,7 +116,7 @@ int main(int argc, char** argv) {
 		++sdlInitPhase;
 	#endif
 
-	setupWindowAndStartGame();
+	setupWindowAndStartGame(initialization);
 
 	cleanupSDL(sdlInitPhase);
 	return 0;
