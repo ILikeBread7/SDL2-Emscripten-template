@@ -15,12 +15,6 @@
 #include "AudioSystem.h"
 #include "InitState.h"
 
-#ifdef __EMSCRIPTEN__
-	void mainLoopContent(void* arg) {
-		((Game*)arg)->run();
-	}
-#endif
-
 void cleanupSDL(int sdlInitPhase) {
 	switch (sdlInitPhase) {
 	#ifndef __EMSCRIPTEN__
@@ -34,6 +28,12 @@ void cleanupSDL(int sdlInitPhase) {
 	case 1: SDL_Quit();
 	}
 }
+
+#ifdef __EMSCRIPTEN__
+	void mainLoopContent(void* arg) {
+		((Game*)arg)->run();
+	}
+#endif
 
 void setupWindowAndStartGame(InitState initialization) {
 	SDL_WindowPtr window = SDLUtils::uptr(SDL_CreateWindow(Game::TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Game::WIDTH, Game::HEIGHT, SDL_WINDOW_SHOWN));

@@ -46,6 +46,16 @@ void Game::handleEvents() {
 		#ifndef __EMSCRIPTEN__
 			case SDL_QUIT: quitCalled(); break;
 		#endif
+			case SDL_JOYBUTTONDOWN: buttonDown(e.jbutton.button); break;
+			case SDL_JOYHATMOTION: hatEvent(e.jhat.value); break;
+			case SDL_JOYAXISMOTION: axisEvent(e.jaxis.axis, e.jaxis.value); break;
+			case SDL_JOYDEVICEADDED: addJoystick(e.jdevice.which); break;
+			case SDL_JOYDEVICEREMOVED: removeJoystick(e.jdevice.which); break;
+			case SDL_KEYDOWN: keyDown(e.key.keysym.sym); break;
+			case SDL_KEYUP: keyUp(e.key.keysym.sym); break;
+			case SDL_MOUSEMOTION: mouseMotion(e.motion.x, e.motion.y); break;
+			case SDL_MOUSEBUTTONDOWN: mouseButtonDown(e.button.button); break;
+			case SDL_MOUSEBUTTONUP: mouseButtonUp(e.button.button); break;
 		}
 	}
 }
@@ -55,3 +65,49 @@ void Game::handleEvents() {
 		keepRunning = false;
 	}
 #endif
+
+void Game::buttonDown(Uint8 button) {
+	printf("Button event %d\n", button);
+	audioSystem->playMusic(music.get());
+}
+
+void Game::hatEvent(Uint8 value) {
+	printf("Hat event %d\n", value);
+}
+
+void Game::axisEvent(Uint8 axis, Sint16 value) {
+	printf("Axis event %d %d\n", axis, value);
+}
+
+void Game::addJoystick(int index) {
+	controllers.push_back(SDLUtils::openJoystick(index));
+}
+
+void Game::removeJoystick(int index) {
+	for (auto it = controllers.begin(); it != controllers.end(); ++it) {
+		if (SDL_JoystickInstanceID(it->get()) == index) {
+			controllers.erase(it);
+			break;
+		}
+	}
+}
+
+void Game::keyDown(SDL_Keycode key) {
+	printf("Key down %d\n", key);
+}
+
+void Game::keyUp(SDL_Keycode key) {
+	printf("Key up %d\n", key);
+}
+
+void Game::mouseMotion(Sint32 x, Sint32 y) {
+	printf("Mouse motion %d %d\n", x, y);
+}
+
+void Game::mouseButtonDown(Uint8 button) {
+	printf("Mouse button down %d\n", button);
+}
+
+void Game::mouseButtonUp(Uint8 button) {
+	printf("Mouse button up %d\n", button);
+}

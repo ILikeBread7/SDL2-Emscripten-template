@@ -1,6 +1,7 @@
 #ifndef SRC_GAME_H_
 #define SRC_GAME_H_
 
+#include <vector>
 #include <SDL.h>
 #include "SDLUtils.h"
 #include "AudioSystem.h"
@@ -10,6 +11,7 @@ class Game {
 private:
 	SDL_Renderer* windowRenderer;
 	AudioSystem* audioSystem;
+	std::vector<SDL_JoystickPtr> controllers;
 	InitState initialization;
 	Uint32 frames;
 
@@ -25,6 +27,16 @@ private:
 	#ifndef __EMSCRIPTEN__
 		void quitCalled();
 	#endif
+	void addJoystick(int index);
+	void removeJoystick(int index);
+	void buttonDown(Uint8 button);
+	void hatEvent(Uint8 value);
+	void axisEvent(Uint8 axis, Sint16 value);
+	void keyDown(SDL_Keycode key);
+	void keyUp(SDL_Keycode key);
+	void mouseMotion(Sint32 x, Sint32 y);
+	void mouseButtonDown(Uint8 button);
+	void mouseButtonUp(Uint8 button);
 public:
 	Game(SDL_Renderer* windowRenderer, AudioSystem* audioSystem, InitState initialization);
 	virtual ~Game();

@@ -17,6 +17,7 @@ typedef std::unique_ptr<SDL_Surface, std::function<void(SDL_Surface*)>> SDL_Surf
 typedef std::unique_ptr<TTF_Font, std::function<void(TTF_Font*)>> TTF_FontPtr;
 typedef std::unique_ptr<SDL_Window, std::function<void(SDL_Window*)>> SDL_WindowPtr;
 typedef std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer*)>> SDL_RendererPtr;
+typedef std::unique_ptr<SDL_Joystick, std::function<void(SDL_Joystick*)>> SDL_JoystickPtr;
 
 namespace SDLUtils {
 
@@ -25,9 +26,11 @@ namespace SDLUtils {
 	inline TTF_FontPtr uptr(TTF_Font* ptr) { return TTF_FontPtr(ptr, TTF_CloseFont); };
 	inline SDL_WindowPtr uptr(SDL_Window* ptr) { return SDL_WindowPtr(ptr, SDL_DestroyWindow); };
 	inline SDL_RendererPtr uptr(SDL_Renderer* ptr) { return SDL_RendererPtr(ptr, SDL_DestroyRenderer); };
+	inline SDL_JoystickPtr uptr(SDL_Joystick* ptr) { return SDL_JoystickPtr(ptr, SDL_JoystickClose); };
 
 	inline SDL_TexturePtr loadTexture(const char* filepath, SDL_Renderer* renderer) { return uptr(IMG_LoadTexture(renderer, filepath)); };
 	inline TTF_FontPtr loadFont(const char* filepath, int size) { return uptr(TTF_OpenFont(filepath, size)); };
+	inline SDL_JoystickPtr openJoystick(int index) { return uptr(SDL_JoystickOpen(index)); };
 
 	void renderTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y, int w, int h);
 	void renderTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y);
