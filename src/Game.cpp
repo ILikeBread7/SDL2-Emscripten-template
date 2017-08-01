@@ -47,6 +47,7 @@ void Game::handleEvents() {
 			case SDL_QUIT: quitCalled(); break;
 		#endif
 			case SDL_JOYBUTTONDOWN: buttonDown(e.jbutton.button); break;
+			case SDL_JOYBUTTONUP: buttonUp(e.jbutton.button); break;
 			case SDL_JOYHATMOTION: hatEvent(e.jhat.value); break;
 			case SDL_JOYAXISMOTION: axisEvent(e.jaxis.axis, e.jaxis.value); break;
 			case SDL_JOYDEVICEADDED: addJoystick(e.jdevice.which); break;
@@ -67,8 +68,11 @@ void Game::handleEvents() {
 #endif
 
 void Game::buttonDown(Uint8 button) {
-	printf("Button event %d\n", button);
-	audioSystem->playMusic(music.get());
+	printf("Button down event %d\n", button);
+}
+
+void Game::buttonUp(Uint8 button) {
+	printf("Button up event %d\n", button);
 }
 
 void Game::hatEvent(Uint8 value) {

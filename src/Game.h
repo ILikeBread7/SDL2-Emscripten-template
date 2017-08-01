@@ -30,6 +30,7 @@ private:
 	void addJoystick(int index);
 	void removeJoystick(int index);
 	void buttonDown(Uint8 button);
+	void buttonUp(Uint8 button);
 	void hatEvent(Uint8 value);
 	void axisEvent(Uint8 axis, Sint16 value);
 	void keyDown(SDL_Keycode key);
