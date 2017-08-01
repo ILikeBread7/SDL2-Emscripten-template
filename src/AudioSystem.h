@@ -12,7 +12,8 @@
 
 	inline Mix_MusicPtr uptr(Mix_Music* ptr) { return Mix_MusicPtr(ptr, Mix_FreeMusic); };
 	inline Mix_ChunkPtr uptr(Mix_Chunk* ptr) { return Mix_ChunkPtr(ptr, Mix_FreeChunk); };
-
+#else
+	#include <utility>
 #endif
 
 class MusicRawPtr;
@@ -66,8 +67,8 @@ private:
 
 public:
 #ifdef __EMSCRIPTEN__
-	inline MusicUptr(MusicUptr&& src) : music(src.music) { src.music = -1; };
-	inline MusicUptr& operator=(MusicUptr&& u) { music = u.music; u.music = -1; return *this; };
+	inline MusicUptr(MusicUptr&& src) { std::swap(music, src.music); };
+	inline MusicUptr& operator=(MusicUptr&& src) { std::swap(music, src.music); return *this; };
 	inline MusicUptr() : music(-1) {};
 #else
 	inline MusicUptr(MusicUptr&& src) : music(std::move(src.music)) {};
@@ -115,8 +116,8 @@ private:
 
 public:
 #ifdef __EMSCRIPTEN__
-	inline ChunkUptr(ChunkUptr&& src) : chunk(src.chunk) { src.chunk = -1; };
-	inline ChunkUptr& operator=(ChunkUptr&& u) { chunk = u.chunk; u.chunk = -1; return *this; };
+	inline ChunkUptr(ChunkUptr&& src) { std::swap(chunk, src.chunk); };
+	inline ChunkUptr& operator=(ChunkUptr&& src) { std::swap(chunk, src.chunk); return *this; };
 	inline ChunkUptr() : chunk(-1) {};
 #else
 	inline ChunkUptr(ChunkUptr&& src) : chunk(std::move(src.chunk)) {};

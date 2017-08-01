@@ -6,12 +6,37 @@
     <title>sdl_template</title>
 	<style>
 		body { margin: 0px; }
+		div#loadingDiv { width:800px; height:600px; background-color:#000; color:#fff; text-align:center; }
+		span#loadingSpan { position:relative; top:235px; }
+		div#spinner {
+			border: 16px solid #000;
+			border-radius: 50%;
+			border-left: 16px solid #fff;
+			width: 40px;
+			height: 40px;
+			animation: spin 1s linear infinite;
+			margin: auto;
+			position: relative;
+			top: 220px;
+		}
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
 	</style>
   </head>
   <body>
+	<div id="loadingDiv">
+		<div id="spinner"></div>
+		<span id="loadingSpan">Loading...</span>
+	</div>
     <canvas id="canvas"></canvas>
     <script type='text/javascript'>
       var Module = {
+		onRuntimeInitialized: function() {
+			var loadingDiv = document.getElementById('loadingDiv');
+			document.body.removeChild(loadingDiv);
+		},
         preRun: [],
         postRun: [],
         print: (function() {

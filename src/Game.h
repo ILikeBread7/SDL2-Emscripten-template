@@ -42,7 +42,7 @@ public:
 	virtual ~Game();
 	static const int FPS = 60;
 	static const int WIDTH = 800;
-	static const int HEIGHT = 633;
+	static const int HEIGHT = 600;
 	constexpr static const char* TITLE = "Hello, World!";
 
 	void run();
