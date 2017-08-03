@@ -67,7 +67,7 @@ private:
 
 public:
 #ifdef __EMSCRIPTEN__
-	inline MusicUptr(MusicUptr&& src) { std::swap(music, src.music); };
+	inline MusicUptr(MusicUptr&& src) : music(src.music) { src.music = -1; };
 	inline MusicUptr& operator=(MusicUptr&& src) { std::swap(music, src.music); return *this; };
 	inline MusicUptr() : music(-1) {};
 #else
@@ -116,7 +116,7 @@ private:
 
 public:
 #ifdef __EMSCRIPTEN__
-	inline ChunkUptr(ChunkUptr&& src) { std::swap(chunk, src.chunk); };
+	inline ChunkUptr(ChunkUptr&& src) : chunk(src.chunk) { src.chunk = -1; };
 	inline ChunkUptr& operator=(ChunkUptr&& src) { std::swap(chunk, src.chunk); return *this; };
 	inline ChunkUptr() : chunk(-1) {};
 #else
