@@ -48,8 +48,7 @@ void setupWindowAndStartGame(InitState initialization) {
 		return;
 	}
 
-	AudioSystem audioSystem;
-	Game game(windowRenderer.get(), &audioSystem, initialization);
+	Game game(windowRenderer.get(), initialization);
 	#ifdef __EMSCRIPTEN__
 		emscripten_set_main_loop_arg(mainLoopContent, &game, Game::FPS, 1);
 	#else

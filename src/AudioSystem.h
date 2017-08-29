@@ -22,17 +22,18 @@ class ChunkRawPtr;
 class ChunkUptr;
 
 class AudioSystem {
-public:
+private:
 	AudioSystem();
+public:
 	virtual ~AudioSystem();
 
-	MusicUptr loadMusic(const char* filepath);
-	ChunkUptr loadChunk(const char* filepath);
-	void playMusic(MusicRawPtr music);
-	void stopMusic();
-	void playChunk(ChunkRawPtr chunk);
-	void setMusicVolume(float volume);
-	void setChunkVolume(float volume);
+	static MusicUptr loadMusic(const char* filepath);
+	static ChunkUptr loadChunk(const char* filepath);
+	static void playMusic(MusicRawPtr music);
+	static void stopMusic();
+	static void playChunk(ChunkRawPtr chunk);
+	static void setMusicVolume(float volume);
+	static void setChunkVolume(float volume);
 };
 
 class MusicRawPtr {
@@ -56,7 +57,6 @@ class MusicUptr {
 	friend class AudioSystem;
 
 private:
-	MusicUptr(const MusicUptr&) = delete;
 #ifdef __EMSCRIPTEN__
 	inline MusicUptr(int music) : music(music) {};
 	int music;
@@ -66,14 +66,16 @@ private:
 #endif
 
 public:
+	MusicUptr(const MusicUptr&) = delete;
+	MusicUptr& operator=(const MusicUptr&) = delete;
 #ifdef __EMSCRIPTEN__
 	inline MusicUptr(MusicUptr&& src) : music(src.music) { src.music = -1; };
-	inline MusicUptr& operator=(MusicUptr&& src) { std::swap(music, src.music); return *this; };
 	inline MusicUptr() : music(-1) {};
+	inline MusicUptr& operator=(MusicUptr&& src) { std::swap(music, src.music); return *this; };
 #else
 	inline MusicUptr(MusicUptr&& src) : music(std::move(src.music)) {};
-	inline MusicUptr& operator=(MusicUptr&& u) { music = std::move(u.music); return *this; };
 	inline MusicUptr() : music(nullptr) {};
+	inline MusicUptr& operator=(MusicUptr&& u) { std::swap(music, u.music); return *this; };
 #endif
 	~MusicUptr();
 
@@ -106,6 +108,7 @@ class ChunkUptr {
 
 private:
 	ChunkUptr(const ChunkUptr&) = delete;
+	ChunkUptr& operator=(const ChunkUptr&) = delete;
 #ifdef __EMSCRIPTEN__
 	inline ChunkUptr(int chunk) : chunk(chunk) {};
 	int chunk;
@@ -117,12 +120,12 @@ private:
 public:
 #ifdef __EMSCRIPTEN__
 	inline ChunkUptr(ChunkUptr&& src) : chunk(src.chunk) { src.chunk = -1; };
-	inline ChunkUptr& operator=(ChunkUptr&& src) { std::swap(chunk, src.chunk); return *this; };
 	inline ChunkUptr() : chunk(-1) {};
+	inline ChunkUptr& operator=(ChunkUptr&& src) { std::swap(chunk, src.chunk); return *this; };
 #else
 	inline ChunkUptr(ChunkUptr&& src) : chunk(std::move(src.chunk)) {};
-	inline ChunkUptr& operator=(ChunkUptr&& u) { chunk = std::move(u.chunk); return *this; };
 	inline ChunkUptr() : chunk(nullptr) {};
+	inline ChunkUptr& operator=(ChunkUptr&& u) { std::swap(chunk, u.chunk); return *this; };
 #endif
 	~ChunkUptr();
 

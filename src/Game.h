@@ -10,7 +10,6 @@
 class Game {
 private:
 	SDL_Renderer* windowRenderer;
-	AudioSystem* audioSystem;
 	std::vector<SDL_JoystickPtr> controllers;
 	InitState initialization;
 	Uint32 frames;
@@ -39,7 +38,7 @@ private:
 	void mouseButtonDown(Uint8 button);
 	void mouseButtonUp(Uint8 button);
 public:
-	Game(SDL_Renderer* windowRenderer, AudioSystem* audioSystem, InitState initialization);
+	Game(SDL_Renderer* windowRenderer, InitState initialization);
 	virtual ~Game();
 	static const int FPS = 60;
 	static const int WIDTH = 800;
