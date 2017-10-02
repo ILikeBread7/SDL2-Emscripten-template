@@ -15,20 +15,6 @@
 #include "AudioSystem.h"
 #include "InitState.h"
 
-void cleanupSDL(int sdlInitPhase) {
-	switch (sdlInitPhase) {
-	#ifndef __EMSCRIPTEN__
-		case 4: Mix_CloseAudio();
-	#endif
-	/* no break */
-	case 3: TTF_Quit();
-	/* no break */
-	case 2: IMG_Quit();
-	/* no break */
-	case 1: SDL_Quit();
-	}
-}
-
 #ifdef __EMSCRIPTEN__
 	void mainLoopContent(void* arg) {
 		((Game*)arg)->run();
@@ -88,36 +74,33 @@ int main(int argc, char** argv) {
 	InitState initialization = initSDLWithDifferentFlags();
 	if (initialization == InitState::FAILED) {
 		printf("Could not initialize SDL2, error message: %s", SDL_GetError());
-		return 0;
 	}
-	int sdlInitPhase = 1;
-
-	if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG) {
-		printf("Could not initialize image loading library, error message: %s", SDL_GetError());
-		cleanupSDL(sdlInitPhase);
-		return 0;
-	}
-	++sdlInitPhase;
-
-	if (TTF_Init() != 0) {
-		printf("Could not initialize image loading library, error message: %s", SDL_GetError());
-		cleanupSDL(sdlInitPhase);
-		return 0;
-	}
-	++sdlInitPhase;
-
-	#ifndef __EMSCRIPTEN__
-		if (Mix_OpenAudio(22050, MIX_INIT_OGG, 2, 4096) != 0) {
-			printf("Could not initialize SDL2 mixer, error message: %s", SDL_GetError());
-			cleanupSDL(sdlInitPhase);
-			return 0;
+	else {
+		if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG) {
+			printf("Could not initialize image loading library, error message: %s", SDL_GetError());
 		}
-		++sdlInitPhase;
-	#endif
-
-	setupWindowAndStartGame(initialization);
-
-	cleanupSDL(sdlInitPhase);
+		else {
+			if (TTF_Init() != 0) {
+				printf("Could not initialize image loading library, error message: %s", SDL_GetError());
+			}
+			else {
+				#ifdef __EMSCRIPTEN__
+					setupWindowAndStartGame(initialization);
+				#else
+					if (Mix_OpenAudio(22050, MIX_INIT_OGG, 2, 4096) != 0) {
+						printf("Could not initialize SDL2 mixer, error message: %s", SDL_GetError());
+					}
+					else {
+						setupWindowAndStartGame(initialization);
+						Mix_CloseAudio();
+					}
+				#endif
+				TTF_Quit();
+			}
+			IMG_Quit();
+		}
+		SDL_Quit();
+	}
 	return 0;
 }
 
